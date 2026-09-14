@@ -5,7 +5,7 @@ import { StreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/
 import { isInitializeRequest } from "@modelcontextprotocol/sdk/types.js";
 import { registerAllTools } from "./tools/index.js";
 
-const PORT = Number(process.env.MCP_PORT ?? 3939);
+export const PORT = Number(process.env.MCP_PORT ?? 3939);
 const transports = new Map<string, StreamableHTTPServerTransport>();
 
 function buildServer(): McpServer {
@@ -16,6 +16,13 @@ function buildServer(): McpServer {
 
 export async function startMcpServer(): Promise<http.Server> {
   const httpServer = http.createServer((req, res) => {
+    if (req.url === "/health") {
+      res.writeHead(200, { "Content-Type": "application/json" }).end(
+        JSON.stringify({ name: "claudeindd", ok: true, pid: process.pid })
+      );
+      return;
+    }
+
     if (req.url !== "/mcp") {
       res.writeHead(404).end();
       return;
@@ -68,10 +75,27 @@ export async function startMcpServer(): Promise<http.Server> {
     });
   });
 
-  await new Promise<void>((resolve) => httpServer.listen(PORT, resolve));
+  await new Promise<void>((resolve, reject) => {
+    httpServer.once("error", reject);
+    httpServer.listen(PORT, () => {
+      httpServer.removeListener("error", reject);
+      resolve();
+    });
+  });
   return httpServer;
 }
 
 export function mcpEndpointUrl(): string {
   return `http://localhost:${PORT}/mcp`;
+}
+
+export async function isServerAlreadyRunning(): Promise<boolean> {
+  try {
+    const res = await fetch(`http://localhost:${PORT}/health`, { signal: AbortSignal.timeout(1000) });
+    if (!res.ok) return false;
+    const data = (await res.json()) as { name?: string };
+    return data.name === "claudeindd";
+  } catch {
+    return false;
+  }
 }
