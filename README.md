@@ -4,39 +4,28 @@ Bot Discord auto-hébergé qui expose le contrôle complet d'un serveur Discord 
 
 ## Setup
 
-1. `npm install`
-2. Copier `.env.example` en `.env` et renseigner `DISCORD_TOKEN` (token du bot, depuis le [Discord Developer Portal](https://discord.com/developers/applications)).
-3. Inviter le bot sur le serveur avec les permissions nécessaires (scope `bot`, permission `Administrator` recommandé vu l'étendue des actions).
-4. Activer les **Privileged Gateway Intents** suivants dans le portail développeur : `SERVER MEMBERS INTENT` et `MESSAGE CONTENT INTENT`.
-5. `npm run build` puis `npm start` (ou `npm run dev` pour lancer directement en TypeScript).
+1. Copier `.env.example` en `.env` et renseigner `DISCORD_TOKEN` (token du bot, depuis le [Discord Developer Portal](https://discord.com/developers/applications)).
+2. Inviter le bot sur le serveur avec les permissions nécessaires (scope `bot`, permission `Administrator` recommandé vu l'étendue des actions).
+3. Activer les **Privileged Gateway Intents** suivants dans le portail développeur : `SERVER MEMBERS INTENT` et `MESSAGE CONTENT INTENT`.
+4. Double-cliquer **`start.bat`**. Il installe les dépendances si besoin, connecte le bot Discord, puis démarre le serveur MCP. Fermer la fenêtre arrête tout (bot + serveur MCP).
 
-## Connecter un client MCP (Claude Desktop)
+La fenêtre affiche l'URL du serveur MCP une fois prêt : `http://localhost:3939/mcp` (port configurable via la variable d'environnement `MCP_PORT`).
 
-Ajouter dans `claude_desktop_config.json` :
+## Connecter un client MCP
 
-```json
-{
-  "mcpServers": {
-    "claudeindd": {
-      "command": "node",
-      "args": ["C:/Users/anato/Random/claudeindd/dist/index.js"]
-    }
-  }
-}
-```
-
-Ou en dev direct avec tsx :
+Le serveur tourne en **Streamable HTTP** (pas en stdio) : lance `start.bat` d'abord, puis connecte ton client à l'URL affichée. Dans Claude Desktop (`claude_desktop_config.json`) :
 
 ```json
 {
   "mcpServers": {
     "claudeindd": {
-      "command": "npx",
-      "args": ["tsx", "C:/Users/anato/Random/claudeindd/src/index.ts"]
+      "url": "http://localhost:3939/mcp"
     }
   }
 }
 ```
+
+Le serveur n'est pas exposé à l'extérieur de ta machine (localhost uniquement).
 
 ## Outils MCP disponibles
 
