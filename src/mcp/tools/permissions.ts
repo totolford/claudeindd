@@ -2,7 +2,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { PermissionsBitField } from "discord.js";
 import { discordClient } from "../../discord/client.js";
-import { textResult, errorResult } from "../utils.js";
+import { textResult, errorResult, toPermissionFlags } from "../utils.js";
 
 async function getGuildChannel(channelId: string) {
   const channel = discordClient.channels.cache.get(channelId) ?? (await discordClient.channels.fetch(channelId));
@@ -10,16 +10,6 @@ async function getGuildChannel(channelId: string) {
     throw new Error(`Channel not found or has no permission overwrites: ${channelId}`);
   }
   return channel;
-}
-
-function toFlags(names: string[]): bigint[] {
-  return names.map((name) => {
-    const flag = (PermissionsBitField.Flags as Record<string, bigint>)[name];
-    if (flag === undefined) {
-      throw new Error(`Unknown permission flag: ${name}`);
-    }
-    return flag;
-  });
 }
 
 export function registerPermissionTools(server: McpServer): void {
@@ -36,8 +26,8 @@ export function registerPermissionTools(server: McpServer): void {
     async ({ channelId, targetId, targetType, allow, deny }) => {
       try {
         const channel = await getGuildChannel(channelId);
-        toFlags(allow);
-        toFlags(deny);
+        toPermissionFlags(allow);
+        toPermissionFlags(deny);
         const overwriteOptions: Record<string, boolean> = {};
         for (const name of allow) overwriteOptions[name] = true;
         for (const name of deny) overwriteOptions[name] = false;

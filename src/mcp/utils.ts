@@ -1,3 +1,4 @@
+import { PermissionsBitField } from "discord.js";
 import { discordClient } from "../discord/client.js";
 
 export async function getGuild(guildId: string) {
@@ -15,4 +16,14 @@ export function textResult(text: string) {
 export function errorResult(err: unknown) {
   const message = err instanceof Error ? err.message : String(err);
   return { content: [{ type: "text" as const, text: `Error: ${message}` }], isError: true };
+}
+
+export function toPermissionFlags(names: string[]): bigint[] {
+  return names.map((name) => {
+    const flag = (PermissionsBitField.Flags as Record<string, bigint>)[name];
+    if (flag === undefined) {
+      throw new Error(`Unknown permission flag: ${name}`);
+    }
+    return flag;
+  });
 }
