@@ -11,7 +11,44 @@ async function getTextChannel(channelId: string) {
   return channel;
 }
 
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
+
 export function registerMessageTools(server: McpServer): void {
+  server.tool(
+    "discord_send_file",
+    "Send one or more files (zip, images, documents, etc.) to a Discord text channel, with optional message text",
+    {
+      channelId: z.string().describe("The ID of the channel to send the file(s) to"),
+      content: z.string().optional().describe("Optional message text to send alongside the file(s)"),
+      files: z
+        .array(
+          z.object({
+            name: z.string().describe("File name including extension, e.g. archive.zip"),
+            base64: z.string().describe("Base64-encoded file content"),
+          }),
+        )
+        .min(1)
+        .max(10)
+        .describe("Files to attach (max 10 per message, 25MB each)"),
+    },
+    async ({ channelId, content, files }) => {
+      try {
+        const channel = await getTextChannel(channelId);
+        const attachments = files.map((f) => {
+          const buffer = Buffer.from(f.base64, "base64");
+          if (buffer.byteLength > MAX_FILE_BYTES) {
+            throw new Error(`File ${f.name} is ${buffer.byteLength} bytes, exceeds the 25MB limit`);
+          }
+          return { attachment: buffer, name: f.name };
+        });
+        const message = await channel.send({ content, files: attachments });
+        return textResult(`Sent message ${message.id} with ${files.length} file(s) to channel ${channelId}`);
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
   server.tool(
     "discord_send_message",
     "Send a message to a Discord text channel",

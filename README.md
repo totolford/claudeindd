@@ -29,7 +29,7 @@ Le serveur n'est pas exposé à l'extérieur de ta machine (localhost uniquement
 
 ## Outils MCP disponibles
 
-- **Messages** : `discord_send_message`, `discord_read_messages`, `discord_edit_message`, `discord_delete_message`
+- **Messages** : `discord_send_message`, `discord_send_file` (zip, images, documents — jusqu'à 10 fichiers, 25MB chacun, contenu en base64), `discord_read_messages`, `discord_edit_message`, `discord_delete_message`
 - **Salons** : `discord_list_channels`, `discord_create_channel`, `discord_delete_channel`, `discord_edit_channel`
 - **Membres** : `discord_list_members`, `discord_kick_member`, `discord_ban_member`, `discord_unban_member`, `discord_timeout_member`
 - **Rôles** : `discord_list_roles`, `discord_create_role` (nom, couleur, permissions, icône/emoji), `discord_delete_role`, `discord_edit_role` (idem création), `discord_set_role_position` (hiérarchie), `discord_add_role_to_member`, `discord_remove_role_from_member`
