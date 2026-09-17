@@ -126,4 +126,119 @@ export function registerMessageTools(server: McpServer): void {
       }
     },
   );
+
+  server.tool(
+    "discord_bulk_delete_messages",
+    "Bulk-delete up to 100 recent messages from a text channel (Discord only allows messages younger than 14 days)",
+    {
+      channelId: z.string().describe("The ID of the channel to purge"),
+      count: z.number().min(1).max(100).describe("Number of most recent messages to delete"),
+    },
+    async ({ channelId, count }) => {
+      try {
+        const channel = await getTextChannel(channelId);
+        if (!("bulkDelete" in channel)) throw new Error(`Channel does not support bulk delete: ${channelId}`);
+        const deleted = await channel.bulkDelete(count, true);
+        return textResult(`Deleted ${deleted.size} message(s) from channel ${channelId}`);
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.tool(
+    "discord_pin_message",
+    "Pin a message in a text channel",
+    {
+      channelId: z.string().describe("The ID of the channel containing the message"),
+      messageId: z.string().describe("The ID of the message to pin"),
+    },
+    async ({ channelId, messageId }) => {
+      try {
+        const channel = await getTextChannel(channelId);
+        const message = await channel.messages.fetch(messageId);
+        await message.pin();
+        return textResult(`Pinned message ${messageId} in channel ${channelId}`);
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.tool(
+    "discord_unpin_message",
+    "Unpin a message in a text channel",
+    {
+      channelId: z.string().describe("The ID of the channel containing the message"),
+      messageId: z.string().describe("The ID of the message to unpin"),
+    },
+    async ({ channelId, messageId }) => {
+      try {
+        const channel = await getTextChannel(channelId);
+        const message = await channel.messages.fetch(messageId);
+        await message.unpin();
+        return textResult(`Unpinned message ${messageId} in channel ${channelId}`);
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.tool(
+    "discord_list_pinned_messages",
+    "List all pinned messages in a text channel",
+    { channelId: z.string() },
+    async ({ channelId }) => {
+      try {
+        const channel = await getTextChannel(channelId);
+        const pinned = await channel.messages.fetchPinned();
+        const lines = [...pinned.values()].map((m) => `[${m.id}] ${m.author.tag}: ${m.content}`);
+        return textResult(lines.length ? lines.join("\n") : "No pinned messages.");
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.tool(
+    "discord_add_reaction",
+    "Add an emoji reaction to a message",
+    {
+      channelId: z.string(),
+      messageId: z.string(),
+      emoji: z.string().describe("Unicode emoji (e.g. \"👍\") or custom emoji as name:id"),
+    },
+    async ({ channelId, messageId, emoji }) => {
+      try {
+        const channel = await getTextChannel(channelId);
+        const message = await channel.messages.fetch(messageId);
+        await message.react(emoji);
+        return textResult(`Added reaction ${emoji} to message ${messageId}`);
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
+
+  server.tool(
+    "discord_remove_reaction",
+    "Remove the bot's own emoji reaction from a message",
+    {
+      channelId: z.string(),
+      messageId: z.string(),
+      emoji: z.string().describe("Unicode emoji (e.g. \"👍\") or custom emoji as name:id"),
+    },
+    async ({ channelId, messageId, emoji }) => {
+      try {
+        const channel = await getTextChannel(channelId);
+        const message = await channel.messages.fetch(messageId);
+        const reaction = message.reactions.cache.find((r) => r.emoji.name === emoji || r.emoji.toString() === emoji);
+        if (!reaction) throw new Error(`No such reaction on message: ${emoji}`);
+        await reaction.users.remove(discordClient.user?.id);
+        return textResult(`Removed reaction ${emoji} from message ${messageId}`);
+      } catch (err) {
+        return errorResult(err);
+      }
+    },
+  );
 }

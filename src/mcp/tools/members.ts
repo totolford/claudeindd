@@ -84,6 +84,29 @@ export function registerMemberTools(server: McpServer): void {
   );
 
   server.tool(
+    "discord_edit_member",
+    "Edits a guild member: nickname, voice mute/deafen, or move to another voice channel",
+    {
+      guildId: z.string(),
+      userId: z.string(),
+      nickname: z.string().nullable().optional().describe("New nickname, or null to reset to username"),
+      mute: z.boolean().optional().describe("Server-mute in voice"),
+      deaf: z.boolean().optional().describe("Server-deafen in voice"),
+      voiceChannelId: z.string().nullable().optional().describe("Move to this voice channel, or null to disconnect"),
+    },
+    async ({ guildId, userId, nickname, mute, deaf, voiceChannelId }) => {
+      try {
+        const guild = await getGuild(guildId);
+        const member = await guild.members.fetch(userId);
+        await member.edit({ nick: nickname, mute, deaf, channel: voiceChannelId });
+        return textResult(`Edited member ${member.user.username} (${userId}).`);
+      } catch (err) {
+        return errorResult(err);
+      }
+    }
+  );
+
+  server.tool(
     "discord_timeout_member",
     "Times out a member for a duration in minutes, or clears the timeout if omitted/zero",
     {

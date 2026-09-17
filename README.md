@@ -27,13 +27,18 @@ Le serveur tourne en **Streamable HTTP** (pas en stdio) : lance `start.bat` d'ab
 
 Le serveur n'est pas exposé à l'extérieur de ta machine (localhost uniquement).
 
-## Outils MCP disponibles
+## Outils MCP disponibles (48)
 
-- **Messages** : `discord_send_message`, `discord_send_file` (zip, images, documents — jusqu'à 10 fichiers, 25MB chacun, contenu en base64), `discord_read_messages`, `discord_edit_message`, `discord_delete_message`
+- **Messages** : `discord_send_message`, `discord_send_file` (zip, images, documents — jusqu'à 10 fichiers, 25MB chacun, contenu en base64), `discord_read_messages`, `discord_edit_message`, `discord_delete_message`, `discord_bulk_delete_messages`, `discord_pin_message`, `discord_unpin_message`, `discord_list_pinned_messages`, `discord_add_reaction`, `discord_remove_reaction`
 - **Salons** : `discord_list_channels`, `discord_create_channel`, `discord_delete_channel`, `discord_edit_channel` (nom, topic, catégorie/déplacement, position, NSFW, slowmode, bitrate, limite d'utilisateurs vocaux)
-- **Membres** : `discord_list_members`, `discord_kick_member`, `discord_ban_member`, `discord_unban_member`, `discord_timeout_member`
+- **Threads** : `discord_create_thread`, `discord_list_active_threads`, `discord_archive_thread`
+- **Membres** : `discord_list_members`, `discord_kick_member`, `discord_ban_member`, `discord_unban_member`, `discord_timeout_member`, `discord_edit_member` (surnom, mute/deaf vocal, déplacement vocal)
 - **Rôles** : `discord_list_roles`, `discord_create_role` (nom, couleur, permissions, icône/emoji), `discord_delete_role`, `discord_edit_role` (idem création), `discord_set_role_position` (hiérarchie), `discord_add_role_to_member`, `discord_remove_role_from_member`
 - **Permissions** : `discord_set_channel_permission_overwrite`, `discord_remove_channel_permission_overwrite`, `discord_get_channel_permissions`
+- **Emojis** : `discord_list_emojis`, `discord_create_emoji`, `discord_delete_emoji`
+- **Invitations** : `discord_create_invite`, `discord_list_invites`, `discord_delete_invite`
+- **Webhooks** : `discord_create_webhook`, `discord_list_webhooks`, `discord_delete_webhook`, `discord_send_webhook_message`
+- **Serveur** : `discord_get_guild_info`, `discord_edit_guild` (nom, description, icône, niveau de vérification), `discord_get_audit_log`, `discord_set_bot_presence` (statut/activité du bot)
 
 ## Sécurité
 
