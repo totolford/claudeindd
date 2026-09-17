@@ -77,19 +77,36 @@ export function registerChannelTools(server: McpServer): void {
 
   server.tool(
     "discord_edit_channel",
-    "Edit a Discord channel's name or topic",
+    "Edit any setting of a Discord channel: name, topic, category (move between categories), position, NSFW flag, slowmode, voice bitrate/user limit",
     {
       channelId: z.string().describe("The ID of the channel to edit"),
       name: z.string().optional().describe("The new channel name"),
-      topic: z.string().optional().describe("The new channel topic"),
+      topic: z.string().optional().describe("The new channel topic (text channels only)"),
+      parentId: z.string().nullable().optional().describe("Category ID to move this channel into, or null to remove it from its category"),
+      lockPermissions: z.boolean().optional().describe("When moving to a new category, sync permission overwrites with that category"),
+      position: z.number().int().min(0).optional().describe("Position of the channel within its parent/guild"),
+      nsfw: z.boolean().optional().describe("Mark the channel as age-restricted (text channels only)"),
+      rateLimitPerUser: z.number().int().min(0).max(21600).optional().describe("Slowmode in seconds, 0-21600 (text channels only)"),
+      bitrate: z.number().int().optional().describe("Voice channel bitrate in bits per second"),
+      userLimit: z.number().int().min(0).max(99).optional().describe("Voice channel user limit, 0 for unlimited"),
     },
-    async ({ channelId, name, topic }) => {
+    async ({ channelId, name, topic, parentId, lockPermissions, position, nsfw, rateLimitPerUser, bitrate, userLimit }) => {
       try {
         const channel = await discordClient.channels.fetch(channelId);
         if (!channel || !("edit" in channel)) {
           throw new Error(`Channel not found: ${channelId}`);
         }
-        await channel.edit({ name, topic });
+        await channel.edit({
+          name,
+          topic,
+          parent: parentId,
+          lockPermissions,
+          position,
+          nsfw,
+          rateLimitPerUser,
+          bitrate,
+          userLimit,
+        });
         return textResult(`Edited channel ${channelId}`);
       } catch (err) {
         return errorResult(err);
