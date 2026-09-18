@@ -40,6 +40,16 @@ Le serveur n'est pas exposé à l'extérieur de ta machine (localhost uniquement
 - **Webhooks** : `discord_create_webhook`, `discord_list_webhooks`, `discord_delete_webhook`, `discord_send_webhook_message`
 - **Serveur** : `discord_get_guild_info`, `discord_edit_guild` (nom, description, icône, niveau de vérification), `discord_get_audit_log`, `discord_set_bot_presence` (statut/activité du bot)
 
+## Scripts de maintenance
+
+`scripts/backup-guild.js` sauvegarde la structure d'un serveur (rôles, salons, permissions, emojis — pas les messages) vers un second serveur, en y recréant/mettant à jour tout (chaque salon reçoit l'ID d'origine dans sa description). Ré-exécutable sans dupliquer (garde une correspondance locale dans `scripts/.backup-maps/`, non commitée).
+
+```
+node scripts/backup-guild.js <sourceGuildId> <targetGuildId>
+```
+
+Le bot doit être présent sur les deux serveurs. Pour que le tri des rôles fonctionne, son propre rôle doit être placé au-dessus des rôles synchronisés sur le serveur cible.
+
 ## Sécurité
 
 Ce bot donne un accès total et sans confirmation au serveur Discord connecté (bannissement, suppression de salons, modification de permissions...). Le token dans `.env` ne doit jamais être commité ni partagé. Le degré de confiance accordé au client IA connecté doit être équivalent à celui d'un administrateur du serveur.
