@@ -45,10 +45,11 @@ Le serveur n'est pas exposé à l'extérieur de ta machine (localhost uniquement
 `scripts/backup-guild.js` sauvegarde la structure d'un serveur (rôles, salons, permissions, emojis — pas les messages) vers un second serveur, en y recréant/mettant à jour tout (chaque salon reçoit l'ID d'origine dans sa description). Ré-exécutable sans dupliquer (garde une correspondance locale dans `scripts/.backup-maps/`, non commitée).
 
 ```
-node scripts/backup-guild.js <sourceGuildId> <targetGuildId>
+node scripts/backup-guild.js <realGuildId> <backupGuildId>              # exporter/rafraîchir la backup
+node scripts/backup-guild.js <realGuildId> <backupGuildId> --restore    # restaurer depuis la backup
 ```
 
-Le bot doit être présent sur les deux serveurs. Pour que le tri des rôles fonctionne, son propre rôle doit être placé au-dessus des rôles synchronisés sur le serveur cible.
+Le bot doit être présent sur les deux serveurs, avec son propre rôle placé au-dessus des rôles synchronisés (sinon le tri des rôles échoue silencieusement). `--restore` ne recrée jamais un rôle/salon supprimé depuis la backup — il ne fait que mettre à jour ce qui existe encore sur le serveur réel, pour rester une opération sans risque.
 
 ## Sécurité
 
